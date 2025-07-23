@@ -13,12 +13,30 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  password    String
+  otp         String?
+  isVerified  Boolean  @default(false)
+  // Add createdAt, updatedAt if needed
+}
+
+
+model VerificationToken {
+  id         String   @id @default(uuid())
+  identifier String             // email
+  token      String             // the OTP
+  expires    DateTime
+}
 
 model Post {
   id          String   @id @default(cuid())
   title       String
-  slug        String   @unique     // ✅ This is your SEO-friendly URL slug
+  slug        String   @unique
   description String
-  author      String
   createdAt   DateTime @default(now())
+  authorId    String   // 👈 FK to User
+  author      User     @relation(fields: [authorId], references: [id])
 }
