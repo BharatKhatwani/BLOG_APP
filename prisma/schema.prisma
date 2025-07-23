@@ -1,34 +1,23 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  // output   = "../lib/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model User {
-  id          String   @id @default(cuid())
-  name        String
-  email       String   @unique
-  password    String
-  otp         String?
-  isVerified  Boolean  @default(false)
-  // Add createdAt, updatedAt if needed
-}
+  id             String   @id @default(cuid())
+  name           String
+  email          String   @unique
+  password       String?
+  image          String?  // for Google users
+  emailVerified  Boolean  @default(false)  // ✅ not `isVerified`, for NextAuth compatibility
+  otp            String?
+  otpExpires     DateTime?                 // ✅ Add this for OTP expiry check
 
-
-model VerificationToken {
-  id         String   @id @default(uuid())
-  identifier String             // email
-  token      String             // the OTP
-  expires    DateTime
+  posts          Post[]   // 👈 relation with Post
 }
 
 model Post {
@@ -37,6 +26,7 @@ model Post {
   slug        String   @unique
   description String
   createdAt   DateTime @default(now())
-  authorId    String   // 👈 FK to User
+
+  authorId    String
   author      User     @relation(fields: [authorId], references: [id])
 }
