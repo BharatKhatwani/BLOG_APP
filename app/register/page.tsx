@@ -10,11 +10,14 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { signIn } from "next-auth/react";
+import { Spinner } from "@heroui/spinner";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"register" | "otp">("register");
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   // 1. Register the user
@@ -86,8 +89,8 @@ export default function RegisterPage() {
                 />
               </div>
 
-              <Button className="w-full cursor-pointer" type="submit">
-                Register
+              <Button className="w-full cursor-pointer" disabled={loading} type="submit" >
+              {loading ? "Register in..." : "Register"}
               </Button>
             </form>
           ) : (
@@ -116,14 +119,27 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <Button
-                variant="outline"
-                className="w-full flex items-center gap-2 cursor-pointer"
-                onClick={() => signIn("google")}
-              >
-                <FcGoogle className="text-xl" />
-                Sign up with Google
-              </Button>
+            <Button
+  variant="outline"
+  className="w-full flex items-center gap-2 cursor-pointer"
+  onClick={() => {
+    setLoading(true); // show spinner immediately
+
+    setTimeout(() => {
+      signIn("google", { callbackUrl: "/blog" });
+    }, 1000); // 1-second delay
+  }}
+>
+  {loading ? (
+    <Spinner size="sm" />
+  ) : (
+    <>
+      <FcGoogle className="text-xl" />
+      Sign up with Google
+    </>
+  )}
+</Button>
+
 
               <p className="text-sm text-center mt-4 text-muted-foreground">
                 Already have an account?{" "}

@@ -44,42 +44,49 @@ const handler = NextAuth({
 
   pages: {
     signIn: "/login",
+      
   },
 
   callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider === "google") {
-        const existing = await prisma.user.findUnique({
-          where: { email: user.email! },
+  async signIn({ user, account }) {
+    if (account?.provider === "google") {
+      const existing = await prisma.user.findUnique({
+        where: { email: user.email! },
+      });
+
+      if (!existing) {
+        await prisma.user.create({
+          data: {
+            email: user.email!,
+            name: user.name,
+            image: user.image,
+            emailVerified: true,
+          },
         });
-
-        if (!existing) {
-          await prisma.user.create({
-            data: {
-              email: user.email!,
-              name: user.name,
-              image: user.image,
-              emailVerified: true,
-            },
-          });
-        }
       }
-      return true;
-    },
-
-    async session({ session }) {
-      if (session.user?.email) {
-        const user = await prisma.user.findUnique({
-          where: { email: session.user.email },
-        });
-
-        if (user) {
-          session.user.id = user.id;
-        }
-      }
-      return session;
-    },
+    }
+    return true;
   },
+
+  async session({ session }) {
+    if (session.user?.email) {
+      const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+      });
+
+      if (user) {
+        session.user.id = user.id;
+      }
+    }
+    return session;
+  },
+
+  // ✅ This ensures user is redirected to `/blog` after login
+  async redirect({ url, baseUrl }) {
+    return baseUrl + "/blog";
+  },
+},
+
 });
 
 export { handler as GET, handler as POST };
