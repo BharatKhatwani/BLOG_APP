@@ -20,11 +20,20 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
 
           {/* Buttons */}
           <div className="flex gap-4">
-            <Link href="/blog/create">
-              <Button className="bg-green-600 hover:bg-green-700 text-white font-medium cursor-pointer">
-                Create
-              </Button>
-            </Link>
+          {session ? (
+  <Link href="/blog/create">
+    <Button className="bg-green-600 hover:bg-green-700 text-white font-medium cursor-pointer">
+      Create
+    </Button>
+  </Link>
+) : (
+  <Link href="/login">
+    <Button className="bg-green-600 hover:bg-green-700 text-white font-medium cursor-pointer">
+      Create
+    </Button>
+  </Link>
+)}
+
 
             {session ? (
               <form action="/api/auth/signout" method="post">
