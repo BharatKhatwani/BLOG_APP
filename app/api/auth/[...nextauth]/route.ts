@@ -3,10 +3,12 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { Session, Account, User } from "next-auth";
+
 
 const prisma = new PrismaClient();
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -44,49 +46,47 @@ const handler = NextAuth({
 
   pages: {
     signIn: "/login",
-      
   },
 
   callbacks: {
-  async signIn({ user, account }) {
-    if (account?.provider === "google") {
-      const existing = await prisma.user.findUnique({
-        where: { email: user.email! },
-      });
-
-      if (!existing) {
-        await prisma.user.create({
-          data: {
-            email: user.email!,
-            name: user.name,
-            image: user.image,
-            emailVerified: true,
-          },
+    async signIn({ user, account }: { user: User; account: Account | null }) {
+      if (account?.provider === "google") {
+        const existing = await prisma.user.findUnique({
+          where: { email: user.email! },
         });
+
+        if (!existing) {
+          await prisma.user.create({
+            data: {
+              email: user.email!,
+              name: user.name,
+              image: user.image,
+              emailVerified: true,
+            },
+          });
+        }
       }
-    }
-    return true;
-  },
+      return true;
+    },
 
-  async session({ session }) {
-    if (session.user?.email) {
-      const user = await prisma.user.findUnique({
-        where: { email: session.user.email },
-      });
+   async session({ session }: { session: Session }) {
+      if (session.user?.email) {
+        const user = await prisma.user.findUnique({
+          where: { email: session.user.email },
+        });
 
-      if (user) {
-        session.user.id = user.id;
+        if (user) {
+          session.user.id = user.id;
+        }
       }
-    }
-    return session;
-  },
+      return session;
+    },
 
-  // ✅ This ensures user is redirected to `/blog` after login
-  async redirect({ url, baseUrl }) {
+  async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
     return baseUrl + "/blog";
   },
-},
+}
+};
 
-});
-
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
