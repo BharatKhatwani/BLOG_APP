@@ -13,7 +13,7 @@ const CreateBlogPage = () => {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e : any) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -102,7 +102,7 @@ const CreateBlogPage = () => {
         {/* Publish Button */}
         <Button
           type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 text-white text-lg font-semibold py-4 transition-all duration-200"
+          className="w-full bg-green-600 hover:bg-green-700 text-white text-lg font-semibold py-4 cursor-pointer transition-all duration-200"
           disabled={!title || !description || loading}
           aria-disabled={!title || !description || loading}
         >
