@@ -1,9 +1,22 @@
 import React from 'react';
+//  import React from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   const session = await getServerSession(authOptions);
@@ -36,11 +49,33 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
 
 
             {session ? (
-              <form action="/api/auth/signout" method="post">
-                <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white font-medium cursor-pointer">
-                  Logout
-                </Button>
-              </form>
+            <form action="/api/auth/signout" method="post">
+  <AlertDialog>
+    <AlertDialogTrigger asChild>
+      <Button type="button" className="bg-red-600 hover:bg-red-700 text-white font-medium cursor-pointer">
+        Logout
+      </Button>
+    </AlertDialogTrigger>
+
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
+        <AlertDialogDescription>
+          This will sign you out of your account.
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel className='cursor-pointer'>Cancel</AlertDialogCancel>
+        <AlertDialogAction asChild>
+          <button type="submit" className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded cursor-pointer">
+            Logout
+          </button>
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+</form>
+
             ) : (
               <Link href="/login">
                 <Button className="bg-gray-800 hover:bg-gray-900 text-white font-medium cursor-pointer">
